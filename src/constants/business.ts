@@ -8,6 +8,7 @@ export const VERIFIED_BUSINESS = {
   defaultWhatsappMessage: '¡Hola! Me gustaría recibir más información sobre sus servicios.',
   facebookUrl: 'https://www.facebook.com/adrianatorrespodo/',
   facebookShareUrl: 'https://www.facebook.com/share/19zWDa5hbR/',
+  facebookFollowers: '4.7K',
   adminEmail: 'flowcraftmediauk@gmail.com',
 } as const;
 

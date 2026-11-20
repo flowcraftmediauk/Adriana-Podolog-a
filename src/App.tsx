@@ -1,15 +1,26 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, CalendarClock, MapPin, Phone, Share2 } from 'lucide-react';
+import {
+  ArrowRight,
+  CalendarClock,
+  MapPin,
+  Phone,
+  Share2,
+} from 'lucide-react';
 import { Header } from './components/Header';
 import { PhotoSlotFrame } from './components/PhotoSlotFrame';
 import { TurnosSection } from './components/TurnosSection';
+import { FaqSection } from './components/FaqSection';
 import {
   FourPointStar,
   WaveTransition,
   WhatsAppIcon,
 } from './components/BotanicalMotifs';
 import { VERIFIED_BUSINESS, buildWhatsAppUrl } from './constants/business';
+
+const HERO_IMAGE = '/src/assets/images/hero_podologia_editorial_1795196722331.jpg';
+const ABOUT_IMAGE = '/src/assets/images/about_botanical_care_1795196722737.jpg';
+const AMBIANCE_IMAGE = '/src/assets/images/clinic_ambiance_wide_1795196723061.jpg';
 
 export default function App() {
   const whatsappHref = buildWhatsAppUrl();
@@ -45,7 +56,9 @@ export default function App() {
                     {VERIFIED_BUSINESS.name}
                   </strong>{' '}
                   brinda atención dedicada en{' '}
-                  <span className="lowercase">{VERIFIED_BUSINESS.specialtyTagline}</span>{' '}
+                  <span className="lowercase">
+                    {VERIFIED_BUSINESS.specialtyTagline}
+                  </span>{' '}
                   en {VERIFIED_BUSINESS.city}. Consultá disponibilidad y
                   coordiná tu turno de manera directa.
                 </p>
@@ -62,12 +75,20 @@ export default function App() {
                   </a>
 
                   <a
-                    href="#sobre-mi"
+                    href="#turnos"
                     className="inline-flex items-center gap-2 px-5 py-3.5 rounded-full border border-[#681B36]/20 text-sm font-medium text-[#422B30] hover:bg-white/70 transition-colors duration-150 whitespace-nowrap"
                   >
-                    <span>Conocer el consultorio</span>
+                    <span>Solicitar online</span>
                     <ArrowRight className="w-4 h-4 text-[#681B36]" />
                   </a>
+                </div>
+
+                <div className="pt-2 flex flex-wrap items-center gap-3 text-xs text-[#6B4E54]">
+                  <span>{VERIFIED_BUSINESS.facebookFollowers} seguidores en Facebook</span>
+                  <span aria-hidden="true">·</span>
+                  <span className="tabular-nums">
+                    Turnos: {VERIFIED_BUSINESS.whatsappDisplay}
+                  </span>
                 </div>
               </motion.div>
 
@@ -83,8 +104,9 @@ export default function App() {
               >
                 <PhotoSlotFrame
                   variant="hero"
-                  title="Fotografía principal del consultorio"
-                  subtitle="Espacio preparado para incorporar una foto real de Adriana Podología o de su espacio de atención."
+                  defaultImageSrc={HERO_IMAGE}
+                  imageAlt="Espacio de bienestar y cuidado podológico en tonos crema y rosa suave"
+                  captionLabel="Imagen editorial · Reemplazable por foto real"
                 />
               </motion.div>
             </div>
@@ -103,8 +125,9 @@ export default function App() {
               <div className="lg:col-span-5 order-2 lg:order-1">
                 <PhotoSlotFrame
                   variant="about"
-                  title="Imagen profesional o clínica"
-                  subtitle="Espacio listo para mostrar una fotografía verificada del equipo o atención."
+                  defaultImageSrc={ABOUT_IMAGE}
+                  imageAlt="Elementos de cuidado podológico y bienestar en piedra natural"
+                  captionLabel="Estética de consultorio · Foto real opcional"
                 />
               </div>
 
@@ -122,18 +145,32 @@ export default function App() {
                   <span className="font-medium text-[#422B30]">
                     {VERIFIED_BUSINESS.specialtyTagline.toLowerCase()}
                   </span>{' '}
-                  para acompañar el cuidado diario de tus pies en{' '}
+                  para acompañar el cuidado y la salud de tus pies en{' '}
                   {VERIFIED_BUSINESS.city}. La coordinación de turnos se realiza
-                  de forma personalizada a través de nuestro WhatsApp directo.
+                  de forma personalizada a través de nuestro WhatsApp directo,
+                  respaldado por una comunidad activa de más de{' '}
+                  <span className="font-medium text-[#422B30] tabular-nums">
+                    {VERIFIED_BUSINESS.facebookFollowers}
+                  </span>{' '}
+                  seguidores en Facebook.
                 </p>
 
-                {/* 3 Organic Verified Highlight Cards (FEMINE 3-tile rhythm, zero invented numbers) */}
+                {/* 3 Organic Verified Highlight Cards (FEMINE 3-tile rhythm, strictly verified facts) */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                   <div className="bg-[#D9828B] text-white rounded-tl-[28px] rounded-br-[28px] rounded-tr-xl rounded-bl-xl p-5 shadow-sm">
+                    <p className="font-serif text-2xl font-semibold leading-snug mb-1 tabular-nums">
+                      {VERIFIED_BUSINESS.facebookFollowers}
+                    </p>
+                    <p className="text-xs text-white/95">
+                      Seguidores en Facebook oficial
+                    </p>
+                  </div>
+
+                  <div className="bg-[#FFF5EC] text-[#422B30] border border-[#681B36]/10 rounded-tl-[28px] rounded-br-[28px] rounded-tr-xl rounded-bl-xl p-5">
                     <p className="font-serif text-lg font-semibold leading-snug mb-1">
                       Podología Clínica
                     </p>
-                    <p className="text-xs text-white/90">
+                    <p className="text-xs text-[#6B4E54]">
                       Especialidad principal confirmada
                     </p>
                   </div>
@@ -143,16 +180,7 @@ export default function App() {
                       San Miguel de Tucumán
                     </p>
                     <p className="text-xs text-[#6B4E54]">
-                      Atención local en la ciudad
-                    </p>
-                  </div>
-
-                  <div className="bg-[#FFF5EC] text-[#422B30] border border-[#681B36]/10 rounded-tl-[28px] rounded-br-[28px] rounded-tr-xl rounded-bl-xl p-5">
-                    <p className="font-serif text-lg font-semibold leading-snug mb-1">
-                      Turnos Directos
-                    </p>
-                    <p className="text-xs text-[#6B4E54] tabular-nums">
-                      {VERIFIED_BUSINESS.whatsappDisplay}
+                      Atención en la ciudad
                     </p>
                   </div>
                 </div>
@@ -179,13 +207,13 @@ export default function App() {
                 {VERIFIED_BUSINESS.specialtyTagline}
               </h2>
               <p className="text-base text-[#6B4E54] leading-relaxed">
-                Cada tratamiento y detalle de atención se publica únicamente con
-                información confirmada por {VERIFIED_BUSINESS.name}.
+                Cada consulta se coordina de manera individual para brindarte una
+                atención clara, cercana y profesional desde el primer mensaje.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Card 1: Verified */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-14">
+              {/* Card 1 */}
               <div className="bg-white rounded-tl-[36px] rounded-br-[36px] rounded-tr-xl rounded-bl-xl p-6 border border-[#681B36]/10 flex flex-col justify-between">
                 <div>
                   <p className="text-xs font-medium text-[#D9828B] mb-2">
@@ -196,7 +224,7 @@ export default function App() {
                   </h3>
                   <p className="text-sm text-[#6B4E54] leading-relaxed">
                     Enfoque integral en podología clínica para el cuidado y
-                    seguimiento profesional.
+                    seguimiento profesional de tus pies.
                   </p>
                 </div>
                 <a
@@ -214,14 +242,17 @@ export default function App() {
               <div className="bg-[#D9828B] text-white rounded-tl-[36px] rounded-br-[36px] rounded-tr-xl rounded-bl-xl p-6 shadow-[0_18px_38px_-18px_rgba(104,27,54,0.4)] flex flex-col justify-between">
                 <div>
                   <p className="text-xs font-medium text-white/85 mb-2">
-                    02 · Turnos
+                    02 · Turnos Directos
                   </p>
                   <h3 className="font-serif text-xl font-semibold text-white mb-2.5">
-                    Atención Programada
+                    Atención por WhatsApp
                   </h3>
                   <p className="text-sm text-white/95 leading-relaxed">
-                    Consultá disponibilidad y coordiná tu horario directamente por
-                    WhatsApp al {VERIFIED_BUSINESS.whatsappDisplay}.
+                    Consultá disponibilidad y coordiná tu visita directamente al{' '}
+                    <span className="tabular-nums">
+                      {VERIFIED_BUSINESS.whatsappDisplay}
+                    </span>
+                    .
                   </p>
                 </div>
                 <a
@@ -235,42 +266,87 @@ export default function App() {
                 </a>
               </div>
 
-              {/* Card 3: Ready for Client-Confirmed Services */}
+              {/* Card 3 */}
               <div className="bg-white rounded-tl-[36px] rounded-br-[36px] rounded-tr-xl rounded-bl-xl p-6 border border-[#681B36]/10 flex flex-col justify-between">
                 <div>
-                  <p className="text-xs font-medium text-[#6B4E54] mb-2">
-                    03 · Próximamente
+                  <p className="text-xs font-medium text-[#D9828B] mb-2">
+                    03 · Comunidad
                   </p>
                   <h3 className="font-serif text-xl font-semibold text-[#422B30] mb-2.5">
-                    Tratamientos del Consultorio
+                    Presencia en Facebook
                   </h3>
                   <p className="text-sm text-[#6B4E54] leading-relaxed">
-                    Espacio reservado para detallar cada prestación específica
-                    confirmada por Adriana Podología.
+                    Seguí las novedades de {VERIFIED_BUSINESS.name} junto a más
+                    de {VERIFIED_BUSINESS.facebookFollowers} seguidores en
+                    Tucumán.
                   </p>
                 </div>
-                <span className="mt-6 text-xs text-[#6B4E54]">
-                  Información por confirmar
-                </span>
+                <a
+                  href={VERIFIED_BUSINESS.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-[#681B36] hover:text-[#D9828B] transition-colors"
+                >
+                  <span>Visitar Facebook</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </a>
               </div>
 
-              {/* Card 4: Ready for Real Clinic Photos */}
+              {/* Card 4 */}
               <div className="bg-white rounded-tl-[36px] rounded-br-[36px] rounded-tr-xl rounded-bl-xl p-6 border border-[#681B36]/10 flex flex-col justify-between">
                 <div>
-                  <p className="text-xs font-medium text-[#6B4E54] mb-2">
-                    04 · Próximamente
+                  <p className="text-xs font-medium text-[#D9828B] mb-2">
+                    04 · Solicitud Online
                   </p>
                   <h3 className="font-serif text-xl font-semibold text-[#422B30] mb-2.5">
-                    Horarios y Dirección
+                    Registro de Consultas
                   </h3>
                   <p className="text-sm text-[#6B4E54] leading-relaxed">
-                    Espacio preparado para mostrar la dirección exacta y los días
-                    de atención en {VERIFIED_BUSINESS.city}.
+                    Guardá tu preferencia horaria en línea y enviala por WhatsApp
+                    cuando quieras.
                   </p>
                 </div>
-                <span className="mt-6 text-xs text-[#6B4E54]">
-                  Información por confirmar
-                </span>
+                <a
+                  href="#turnos"
+                  className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-[#681B36] hover:text-[#D9828B] transition-colors"
+                >
+                  <span>Ir a Turnos</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+
+            {/* Wide Editorial Visual Band */}
+            <div className="relative rounded-tl-[56px] rounded-br-[56px] rounded-tr-2xl rounded-bl-2xl overflow-hidden shadow-[0_24px_60px_-28px_rgba(66,43,48,0.3)] border border-[#681B36]/10">
+              <div className="aspect-[16/9] sm:aspect-[21/9] w-full bg-[#F4D5D2]">
+                <img
+                  src={AMBIANCE_IMAGE}
+                  alt="Ambiente sereno y luminoso inspirado en el bienestar clínico"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#422B30]/85 via-[#422B30]/35 to-transparent flex items-end p-6 sm:p-10">
+                <div className="max-w-2xl text-white space-y-3">
+                  <p className="text-xs font-medium text-[#F4D5D2]">
+                    {VERIFIED_BUSINESS.name} · {VERIFIED_BUSINESS.city}
+                  </p>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-semibold leading-snug text-balance">
+                    ¿Necesitás asesoramiento o consultar disponibilidad para esta
+                    semana?
+                  </h3>
+                  <div className="pt-1">
+                    <a
+                      href={whatsappHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#25D366] text-white text-sm font-semibold hover:bg-[#1EBE5D] transition-colors whitespace-nowrap"
+                    >
+                      <WhatsAppIcon className="w-4 h-4" />
+                      <span>Escribir por WhatsApp</span>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -289,8 +365,11 @@ export default function App() {
           <WaveTransition fillColor="#FFF5EC" />
         </div>
 
+        {/* FACTUAL FAQ SECTION */}
+        <FaqSection />
+
         {/* CONTACT SECTION */}
-        <section id="contacto" className="bg-[#FFF5EC] py-16 sm:py-24">
+        <section id="contacto" className="bg-[#FFF5EC] pt-4 pb-16 sm:pb-24">
           <div className="max-w-6xl mx-auto px-5 sm:px-8">
             <div className="bg-white rounded-tl-[64px] rounded-br-[64px] rounded-tr-3xl rounded-bl-3xl p-8 sm:p-12 border border-[#681B36]/10 shadow-[0_20px_50px_-30px_rgba(66,43,48,0.2)]">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
@@ -362,7 +441,7 @@ export default function App() {
                         {VERIFIED_BUSINESS.city}, {VERIFIED_BUSINESS.country}
                       </p>
                       <p className="text-xs text-[#6B4E54] mt-0.5">
-                        Dirección exacta del consultorio a confirmar
+                        La dirección exacta se confirma al coordinar el turno
                       </p>
                     </div>
                   </div>
@@ -373,10 +452,10 @@ export default function App() {
                     </div>
                     <div>
                       <p className="text-xs font-medium text-[#6B4E54]">
-                        Horarios de atención
+                        Modalidad de atención
                       </p>
                       <p className="text-sm text-[#422B30]">
-                        A confirmar · Turnos con consulta previa por WhatsApp
+                        Turnos con coordinación previa por WhatsApp
                       </p>
                     </div>
                   </div>
@@ -403,7 +482,10 @@ export default function App() {
             <a href="#inicio" className="hover:text-[#681B36] transition-colors">
               Inicio
             </a>
-            <a href="#podologia" className="hover:text-[#681B36] transition-colors">
+            <a
+              href="#podologia"
+              className="hover:text-[#681B36] transition-colors"
+            >
               Podología
             </a>
             <a href="#turnos" className="hover:text-[#681B36] transition-colors">

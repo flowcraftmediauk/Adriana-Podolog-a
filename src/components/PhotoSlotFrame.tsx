@@ -1,37 +1,44 @@
 import React, { useRef, useState } from 'react';
-import { Camera, RotateCcw } from 'lucide-react';
+import { Camera, RotateCcw, Sparkles } from 'lucide-react';
 import { BotanicalSprig, FourPointStar } from './BotanicalMotifs';
 
 interface PhotoSlotFrameProps {
-  title: string;
-  subtitle: string;
+  defaultImageSrc: string;
+  imageAlt: string;
+  captionLabel?: string;
   variant?: 'hero' | 'about';
   showPaletteDots?: boolean;
 }
 
 export function PhotoSlotFrame({
-  title,
-  subtitle,
+  defaultImageSrc,
+  imageAlt,
+  captionLabel,
   variant = 'hero',
   showPaletteDots = true,
 }: PhotoSlotFrameProps) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [customPreviewUrl, setCustomPreviewUrl] = useState<string | null>(null);
+  const [imgFailed, setImgFailed] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const activeSrc = customPreviewUrl ?? defaultImageSrc;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
+    if (customPreviewUrl) {
+      URL.revokeObjectURL(customPreviewUrl);
     }
-    setPreviewUrl(URL.createObjectURL(file));
+    setImgFailed(false);
+    setCustomPreviewUrl(URL.createObjectURL(file));
   };
 
   const handleReset = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
+    if (customPreviewUrl) {
+      URL.revokeObjectURL(customPreviewUrl);
     }
-    setPreviewUrl(null);
+    setCustomPreviewUrl(null);
+    setImgFailed(false);
     if (inputRef.current) {
       inputRef.current.value = '';
     }
@@ -48,70 +55,81 @@ export function PhotoSlotFrame({
       {/* Botanical sprig positioned organically on frame edge */}
       <BotanicalSprig
         className={`hidden sm:block absolute z-20 pointer-events-none select-none text-[#422B30]/75 ${
-          isHero ? '-left-10 bottom-2 w-28 h-44' : '-right-10 bottom-3 w-24 h-40 scale-x-[-1]'
+          isHero
+            ? '-left-10 bottom-2 w-28 h-44'
+            : '-right-10 bottom-3 w-24 h-40 scale-x-[-1]'
         }`}
       />
 
       {/* Organic asymmetrical blush frame */}
       <div
-        className={`relative w-full aspect-[4/4.3] bg-[#F4D5D2] p-4 sm:p-5 shadow-[0_20px_50px_-24px_rgba(104,27,54,0.22)] overflow-hidden ${
+        className={`relative w-full aspect-[3/4] bg-[#F4D5D2] p-3.5 sm:p-4 shadow-[0_24px_55px_-26px_rgba(104,27,54,0.28)] overflow-hidden ${
           isHero
             ? 'rounded-tl-[96px] rounded-br-[96px] rounded-tr-[24px] rounded-bl-[24px]'
             : 'rounded-tr-[96px] rounded-bl-[96px] rounded-tl-[24px] rounded-br-[24px]'
         }`}
       >
         <div
-          className={`relative w-full h-full bg-[#FFF5EC] border border-[#681B36]/15 overflow-hidden flex flex-col items-center justify-center text-center p-6 ${
+          className={`group relative w-full h-full bg-[#FFF5EC] overflow-hidden ${
             isHero
-              ? 'rounded-tl-[80px] rounded-br-[80px] rounded-tr-[16px] rounded-bl-[16px]'
-              : 'rounded-tr-[80px] rounded-bl-[80px] rounded-tl-[16px] rounded-br-[16px]'
+              ? 'rounded-tl-[82px] rounded-br-[82px] rounded-tr-[16px] rounded-bl-[16px]'
+              : 'rounded-tr-[82px] rounded-bl-[82px] rounded-tl-[16px] rounded-br-[16px]'
           }`}
         >
-          {previewUrl ? (
-            <>
-              <img
-                src={previewUrl}
-                alt={title}
-                referrerPolicy="no-referrer"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
+          {!imgFailed ? (
+            <img
+              src={activeSrc}
+              alt={imageAlt}
+              referrerPolicy="no-referrer"
+              onError={() => setImgFailed(true)}
+              className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#FFF5EC] to-[#F4D5D2]/50">
+              <Sparkles className="w-7 h-7 text-[#681B36] mb-3" />
+              <p className="font-serif text-lg font-semibold text-[#422B30]">
+                {imageAlt}
+              </p>
+            </div>
+          )}
+
+          {/* Subtle bottom gradient + optional real photo preview button */}
+          <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-[#422B30]/65 via-[#422B30]/20 to-transparent flex items-center justify-between gap-2">
+            <span className="text-[11px] font-medium text-white/95 truncate">
+              {customPreviewUrl
+                ? 'Vista previa con foto propia'
+                : captionLabel || 'Adriana Podología'}
+            </span>
+
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+              aria-label={`Cambiar imagen: ${imageAlt}`}
+            />
+
+            {customPreviewUrl ? (
               <button
                 type="button"
                 onClick={handleReset}
-                className="relative z-10 mt-auto inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/90 text-[#422B30] text-xs font-medium shadow-sm hover:bg-white transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/90 text-[#422B30] text-[11px] font-medium hover:bg-white transition-colors cursor-pointer shrink-0"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Quitar vista previa</span>
+                <RotateCcw className="w-3 h-3" />
+                <span>Restaurar</span>
               </button>
-            </>
-          ) : (
-            <div className="flex flex-col items-center max-w-[240px]">
-              <div className="w-14 h-14 rounded-full bg-[#F4D5D2]/70 flex items-center justify-center text-[#681B36] mb-4">
-                <Camera className="w-6 h-6" strokeWidth={1.6} />
-              </div>
-              <p className="font-serif text-lg sm:text-xl font-semibold text-[#422B30] leading-snug mb-2">
-                {title}
-              </p>
-              <p className="text-xs sm:text-sm text-[#6B4E54] leading-relaxed mb-5">
-                {subtitle}
-              </p>
-              <input
-                ref={inputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-                aria-label={`Probar fotografía real para ${title}`}
-              />
+            ) : (
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#D9828B] text-[#681B36] text-xs font-medium hover:bg-[#F4D5D2]/40 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 text-[#422B30] text-[11px] font-medium hover:bg-white transition-colors cursor-pointer shrink-0"
               >
-                <span>Probar foto real aquí</span>
+                <Camera className="w-3 h-3 text-[#681B36]" />
+                <span>Cambiar foto</span>
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
