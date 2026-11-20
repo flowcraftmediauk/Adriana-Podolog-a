@@ -1,0 +1,6 @@
+{
+  "name": "Adriana Podología",
+  "description": "Sitio web oficial de Adriana Podología — Podología clínica en San Miguel de Tucumán, Argentina.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,171 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net: deny everything by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ---------------------------------------------------------
+    // Global Hardened Helpers
+    // ---------------------------------------------------------
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(ownerUid) {
+      return isSignedIn() && request.auth.uid == ownerUid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        request.auth.token.email == 'flowcraftmediauk@gmail.com';
+    }
+
+    // ---------------------------------------------------------
+    // Entity Validators (Synced with firebase-blueprint.json)
+    // ---------------------------------------------------------
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasAll(['uid', 'displayName', 'email', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'displayName', 'email', 'photoURL', 'createdAt', 'updatedAt'])
+        && data.uid is string
+        && data.uid == request.auth.uid
+        && data.uid == userId
+        && isValidId(data.uid)
+        && data.displayName is string
+        && data.displayName.size() >= 1
+        && data.displayName.size() <= 100
+        && data.email is string
+        && data.email.size() >= 3
+        && data.email.size() <= 160
+        && (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 500))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidTurnoRequest(data) {
+      return data.keys().hasAll([
+          'userId',
+          'patientName',
+          'whatsappNumber',
+          'preferredShift',
+          'note',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'userId',
+          'patientName',
+          'whatsappNumber',
+          'preferredShift',
+          'note',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.userId is string
+        && isValidId(data.userId)
+        && data.patientName is string
+        && data.patientName.size() >= 2
+        && data.patientName.size() <= 100
+        && data.whatsappNumber is string
+        && data.whatsappNumber.size() >= 6
+        && data.whatsappNumber.size() <= 30
+        && data.whatsappNumber.matches('^[0-9+\\-()\\s]{6,30}$')
+        && data.preferredShift is string
+        && data.preferredShift in ['manana', 'tarde', 'a_convenir']
+        && data.note is string
+        && data.note.size() >= 3
+        && data.note.size() <= 500
+        && data.status is string
+        && data.status in ['pendiente', 'enviado_whatsapp', 'cancelado']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // ---------------------------------------------------------
+    // Collection Rules
+    // ---------------------------------------------------------
+    match /users/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if false;
+
+      allow create: if isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming(), userId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(userId)
+        && isValidUserProfile(incoming(), userId)
+        && (isOwner(userId) || isAdmin())
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'email', 'photoURL', 'updatedAt']);
+
+      allow delete: if false;
+    }
+
+    match /turnoRequests/{requestId} {
+      allow get: if isValidId(requestId) && (isOwner(existing().userId) || isAdmin());
+      allow list: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+
+      allow create: if isValidId(requestId)
+        && isSignedIn()
+        && isValidTurnoRequest(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().status == 'pendiente'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(requestId)
+        && isSignedIn()
+        && isValidTurnoRequest(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (
+            isOwner(existing().userId)
+            && existing().status != 'cancelado'
+            && (
+              // Action 1: Edit inquiry details while active
+              (
+                incoming().status == existing().status
+                && incoming().diff(existing()).affectedKeys().hasOnly(['patientName', 'whatsappNumber', 'preferredShift', 'note', 'updatedAt'])
+              ) ||
+              // Action 2: Mark as sent to WhatsApp
+              (
+                incoming().status == 'enviado_whatsapp'
+                && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+              ) ||
+              // Action 3: Cancel inquiry (terminal state for owner)
+              (
+                incoming().status == 'cancelado'
+                && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+              )
+            )
+          )
+        );
+
+      allow delete: if isValidId(requestId) && (isOwner(existing().userId) || isAdmin());
+    }
+  }
+}
